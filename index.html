@@ -3,28 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Карта подій в Україні</title>
+<title>UKR LIBERATION — Карта подій в Україні</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
 <style>
 :root {
-  --bg: rgba(255, 255, 255, 0.85);
-  --fg: #141824;
-  --mut: #64748b;
-  --line: rgba(0, 0, 0, 0.09);
-  --hov: rgba(0, 0, 0, 0.05);
+  --bg: rgba(255, 255, 255, 0.88);
+  --fg: #111622;
+  --mut: #475569;
+  --line: rgba(0, 0, 0, 0.11);
+  --hov: rgba(0, 0, 0, 0.06);
   --acc: #1e88e5;
   --gold: #f5b400;
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  --shadow: 0 10px 36px rgba(0, 0, 0, 0.18);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: rgba(16, 22, 34, 0.84);
-    --fg: #f1f5f9;
+    --bg: rgba(13, 19, 31, 0.88);
+    --fg: #f8fafc;
     --mut: #94a3b8;
-    --line: rgba(255, 255, 255, 0.11);
-    --hov: rgba(255, 255, 255, 0.07);
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    --line: rgba(245, 180, 0, 0.16);
+    --hov: rgba(255, 255, 255, 0.08);
+    --shadow: 0 10px 36px rgba(0, 0, 0, 0.55);
   }
 }
 
@@ -32,9 +32,9 @@
 html, body {
   height: 100%;
   margin: 0;
-  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 14.5px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--fg);
-  background: #070b14;
+  background: #060a12;
   overflow: hidden;
 }
 
@@ -42,13 +42,13 @@ html, body {
 
 .box {
   background: var(--bg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: var(--fg);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: var(--shadow);
-  transition: transform .25s ease, opacity .25s ease, background .2s;
+  transition: transform .22s ease, opacity .22s ease, background .2s, border-color .2s;
 }
 
 button, input, select, textarea { font: inherit; color: inherit; outline: none; }
@@ -56,27 +56,28 @@ button {
   background: none;
   border: 0;
   cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
   transition: background .15s, transform .1s;
 }
 button:hover { background: var(--hov); }
 button:active { transform: scale(0.97); }
 button.pri {
-  background: linear-gradient(135deg, #1e88e5, #1565c0);
+  background: linear-gradient(135deg, #1e88e5, #0d47a1);
   color: #fff;
-  font-weight: 500;
-  box-shadow: 0 2px 8px rgba(30, 136, 229, 0.35);
+  font-weight: 600;
+  box-shadow: 0 3px 12px rgba(30, 136, 229, 0.4);
 }
 button.pri:hover { filter: brightness(1.08); }
 
+/* Збільшена ліва панель */
 #side {
   position: absolute;
   z-index: 1000;
-  top: 12px;
-  left: 12px;
-  width: 260px;
-  max-height: calc(100% - 80px);
+  top: 14px;
+  left: 14px;
+  width: 300px;
+  max-height: calc(100% - 92px);
   display: flex;
   flex-direction: column;
 }
@@ -84,207 +85,219 @@ button.pri:hover { filter: brightness(1.08); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
-  font-weight: 600;
-  font-size: 14px;
+  padding: 12px 14px;
+  font-weight: 700;
+  font-size: 15.5px;
   letter-spacing: .01em;
 }
 #side header span {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
 }
 #side header span::before {
   content: '';
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--gold);
-  box-shadow: 0 0 8px var(--gold);
+  box-shadow: 0 0 10px var(--gold);
 }
+#tg { font-size: 16px; padding: 4px 10px; }
 #side.c #body { display: none; }
-#body { overflow: auto; padding: 0 10px 12px; }
+#body { overflow: auto; padding: 0 12px 14px; }
 
 #srch {
   width: 100%;
   border: 1px solid var(--line);
-  background: rgba(127, 127, 127, 0.06);
-  border-radius: 8px;
-  padding: 7px 10px;
-  margin-bottom: 8px;
+  background: rgba(127, 127, 127, 0.08);
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin-bottom: 10px;
+  font-size: 14px;
   transition: border-color .2s;
 }
-#srch:focus { border-color: var(--acc); }
+#srch:focus { border-color: var(--gold); }
 
 .seg {
   display: flex;
-  gap: 3px;
-  margin: 6px 0 10px;
-  background: rgba(127, 127, 127, 0.08);
-  padding: 3px;
-  border-radius: 9px;
+  gap: 4px;
+  margin: 6px 0 12px;
+  background: rgba(127, 127, 127, 0.1);
+  padding: 4px;
+  border-radius: 11px;
 }
 .seg button {
   flex: 1;
-  font-size: 11.5px;
-  padding: 5px 2px;
-  border-radius: 6px;
+  font-size: 12.5px;
+  padding: 6px 4px;
+  border-radius: 8px;
 }
 .seg button.on {
   background: var(--fg);
   color: var(--bg);
-  font-weight: 600;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
 .sub {
   color: var(--mut);
-  font-size: 10.5px;
-  font-weight: 600;
-  margin: 10px 4px 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin: 12px 4px 6px;
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: .07em;
 }
 
 .row {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 5px 6px;
-  border-radius: 8px;
+  gap: 9px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  font-size: 14px;
   transition: background .15s;
 }
 .row:hover { background: var(--hov); }
 .row.act {
-  background: rgba(30, 136, 229, 0.16);
-  outline: 1px solid rgba(30, 136, 229, 0.35);
+  background: rgba(245, 180, 0, 0.16);
+  outline: 1px solid rgba(245, 180, 0, 0.45);
 }
-.row input[type=checkbox] { accent-color: var(--acc); cursor: pointer; width: 15px; height: 15px; }
-.row .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.row input[type=checkbox] { accent-color: var(--acc); cursor: pointer; width: 17px; height: 17px; }
+.row .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; font-weight: 500; }
 .row small {
   color: var(--mut);
-  background: rgba(127,127,127,0.12);
-  padding: 1px 6px;
-  border-radius: 10px;
-  font-size: 11px;
+  background: rgba(127,127,127,0.14);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
 }
-.row button { padding: 2px 6px; opacity: .75; }
+.row button { padding: 3px 8px; opacity: .8; font-size: 14px; }
 .row button:hover { opacity: 1; }
 
-#addl, #imp, #exp { width: 100%; text-align: left; margin-top: 3px; font-size: 12.5px; }
+#addl, #imp, #exp { width: 100%; text-align: left; margin-top: 5px; font-size: 13.5px; padding: 8px 12px; }
 
+/* Збільшений тулбар малювання */
 #tb {
   position: absolute;
   z-index: 1000;
-  top: 12px;
+  top: 14px;
   left: 50%;
   transform: translateX(-50%);
   display: none;
-  padding: 4px;
-  gap: 4px;
+  padding: 5px;
+  gap: 5px;
   flex-wrap: wrap;
   justify-content: center;
-  max-width: calc(100% - 350px);
+  max-width: calc(100% - 360px);
 }
 body.adm #tb { display: flex; animation: sl .3s ease; }
-#tb button { font-weight: 500; font-size: 12.5px; }
+#tb button { font-weight: 600; font-size: 13.5px; padding: 8px 12px; }
 
 #adm {
   position: absolute;
   z-index: 1000;
-  right: 12px;
-  bottom: 24px;
-  padding: 7px 14px;
-  font-size: 12px;
-  font-weight: 500;
+  right: 14px;
+  bottom: 26px;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
 }
-body.adm #adm { border-color: rgba(245, 180, 0, 0.5); color: var(--gold); }
+body.adm #adm { border-color: rgba(245, 180, 0, 0.6); color: var(--gold); }
 
 #done {
   position: absolute;
   z-index: 1000;
-  bottom: 70px;
+  bottom: 78px;
   left: 50%;
   transform: translateX(-50%);
   display: none;
-  padding: 9px 18px;
+  padding: 11px 22px;
+  font-size: 14.5px;
 }
 
 #toast {
   position: absolute;
   z-index: 2000;
-  bottom: 70px;
+  bottom: 78px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 9px 16px;
+  padding: 11px 18px;
   display: none;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 14px;
 }
 
+/* Модальне вікно */
 #ov {
   position: fixed;
   inset: 0;
   z-index: 3000;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
   display: none;
   align-items: center;
   justify-content: center;
 }
-#md { width: 340px; max-width: 92vw; padding: 18px; }
-#md h3 { margin: 0 0 12px; font-size: 16px; }
-#md label { display: block; margin-bottom: 10px; color: var(--mut); font-size: 12px; }
+#md { width: 380px; max-width: 92vw; padding: 20px; }
+#md h3 { margin: 0 0 14px; font-size: 17px; }
+#md label { display: block; margin-bottom: 12px; color: var(--mut); font-size: 13px; }
 #md input:not([type=color]), #md textarea, #md select {
   display: block;
   width: 100%;
-  margin-top: 4px;
-  padding: 7px 10px;
-  background: rgba(127,127,127,0.06);
+  margin-top: 5px;
+  padding: 9px 12px;
+  background: rgba(127,127,127,0.08);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--fg);
+  font-size: 14px;
 }
+#md input[type=color] { width: 54px; height: 34px; padding: 2px; border-radius: 8px; border: 1px solid var(--line); background: none; cursor: pointer; }
 #md select option { color: #000; }
-#md textarea { min-height: 75px; resize: vertical; }
-.btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+#md textarea { min-height: 85px; resize: vertical; }
+.btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
+/* Маркери та попапи */
 .pin {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  border: 2.5px solid #fff;
-  box-shadow: 0 0 0 2px rgba(0,0,0,0.25), 0 3px 8px rgba(0,0,0,0.5);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.3), 0 4px 10px rgba(0,0,0,0.55);
 }
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
   background: var(--bg);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
   color: var(--fg);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 14px;
 }
-.pp b { display: block; font-size: 14px; margin-bottom: 4px; }
-.pp div { white-space: pre-wrap; color: var(--mut); font-size: 12.5px; }
-.pp .a { margin-top: 10px; display: flex; gap: 5px; }
-.pp .a button { border: 1px solid var(--line); padding: 3px 9px; font-size: 12px; }
+.leaflet-popup-content { margin: 12px 14px; font-size: 14px; }
+.pp b { display: block; font-size: 15.5px; margin-bottom: 5px; }
+.pp div { white-space: pre-wrap; color: var(--mut); font-size: 13.5px; }
+.pp .a { margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+.pp .a button { border: 1px solid var(--line); padding: 5px 10px; font-size: 12.5px; font-weight: 500; }
 
-.leaflet-control-zoom { border: none !important; box-shadow: var(--shadow) !important; border-radius: 10px !important; overflow: hidden; }
-.leaflet-control-zoom a { background: var(--bg) !important; color: var(--fg) !important; border-bottom: 1px solid var(--line) !important; backdrop-filter: blur(12px); }
+.leaflet-control-zoom { border: none !important; box-shadow: var(--shadow) !important; border-radius: 12px !important; overflow: hidden; }
+.leaflet-control-zoom a { width: 36px !important; height: 36px !important; line-height: 36px !important; font-size: 18px !important; background: var(--bg) !important; color: var(--fg) !important; border-bottom: 1px solid var(--line) !important; backdrop-filter: blur(12px); }
 
 @media (max-width: 700px) {
-  #tb { top: auto; bottom: 72px; max-width: calc(100% - 24px); }
-  #side { width: 220px; }
+  #tb { top: auto; bottom: 78px; max-width: calc(100% - 24px); }
+  #side { width: 250px; }
 }
 
+/* === ІНТРО-АНІМАЦІЯ З ФОТО НА ФОНІ === */
 #intro {
   position: fixed;
   inset: 0;
   z-index: 5000;
-  background: #060a12;
+  background: #05080f;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
   color: #fff;
   overflow: hidden;
   transition: opacity .85s cubic-bezier(.4,0,.2,1), visibility .85s;
@@ -293,17 +306,17 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.5); color: var(--gold); }
 
 #intro .bg-img {
   position: absolute;
-  inset: -5%;
+  inset: -4%;
   background: url('logo.jpg') center/contain no-repeat;
   opacity: 0;
-  filter: drop-shadow(0 0 40px rgba(245, 180, 0, 0.25));
+  filter: drop-shadow(0 0 48px rgba(245, 180, 0, 0.3));
   animation: bgZoom 3.2s cubic-bezier(.16, 1, .3, 1) forwards;
 }
 #intro::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(6, 10, 18, 0.45) 0%, rgba(6, 10, 18, 0.88) 75%);
+  background: radial-gradient(circle at center, rgba(5, 8, 15, 0.35) 0%, rgba(5, 8, 15, 0.9) 78%);
   z-index: 1;
 }
 
@@ -315,15 +328,25 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.5); color: var(--gold); }
   align-items: center;
   text-align: center;
   padding: 20px;
-  margin-top: min(38vh, 260px);
+  margin-top: min(37vh, 250px);
+}
+#intro .tag {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .22em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: 0;
+  animation: fu .7s .2s cubic-bezier(.16, 1, .3, 1) forwards;
 }
 #intro h1 {
   margin: 0;
-  font-size: clamp(24px, 5vw, 42px);
-  font-weight: 700;
+  font-size: clamp(26px, 5.5vw, 46px);
+  font-weight: 800;
   letter-spacing: .05em;
   text-transform: uppercase;
-  text-shadow: 0 4px 20px rgba(0,0,0,0.85);
+  text-shadow: 0 4px 24px rgba(0,0,0,0.9);
   opacity: 0;
   animation: fu .8s .35s cubic-bezier(.16, 1, .3, 1) forwards;
 }
@@ -334,13 +357,13 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.5); color: var(--gold); }
   margin: 12px 0;
   border-radius: 3px;
   background: linear-gradient(90deg, #1e88e5, #ffd600);
-  box-shadow: 0 0 12px rgba(255, 214, 0, 0.5);
+  box-shadow: 0 0 14px rgba(255, 214, 0, 0.6);
   animation: ln 1.5s .45s cubic-bezier(.16, 1, .3, 1) forwards;
 }
 #intro p {
   margin: 0;
   color: #cbd5e1;
-  font-size: 13px;
+  font-size: 13.5px;
   letter-spacing: .12em;
   text-transform: uppercase;
   text-shadow: 0 2px 10px rgba(0,0,0,0.9);
@@ -350,15 +373,15 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.5); color: var(--gold); }
 
 @keyframes bgZoom {
   0% { opacity: 0; transform: scale(0.92); }
-  25% { opacity: 0.78; }
-  100% { opacity: 0.65; transform: scale(1.06); }
+  25% { opacity: 0.82; }
+  100% { opacity: 0.68; transform: scale(1.06); }
 }
 @keyframes fu {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: none; }
 }
 @keyframes ln {
-  to { width: min(280px, 65vw); }
+  to { width: min(300px, 68vw); }
 }
 #side, #adm { animation: sl .8s 1.9s both; }
 @keyframes sl {
@@ -367,7 +390,7 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.5); color: var(--gold); }
 }
 @media (prefers-reduced-motion: reduce) {
   #intro, #intro *, #side, #adm { animation: none !important; transition: none !important; }
-  #intro h1, #intro p, #intro .bg-img { opacity: 1; }
+  #intro .tag, #intro h1, #intro p, #intro .bg-img { opacity: 1; }
 }
 </style>
 </head>
@@ -378,24 +401,25 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.5); color: var(--gold); }
 <div id="intro">
   <div class="bg-img"></div>
   <div class="cnt">
+    <div class="tag">UKR LIBERATION</div>
     <h1>Карта подій в Україні</h1>
     <i></i>
-    <p>Ініціалізація карти…</p>
+    <p>Оперативна карта звільнення та подій</p>
   </div>
 </div>
 
 <div id="side" class="box">
-  <header><span>Карта подій</span><button id="tg" title="Згорнути">–</button></header>
+  <header><span>UKR LIBERATION</span><button id="tg" title="Згорнути">–</button></header>
   <div id="body">
     <input id="srch" placeholder="Пошук населеного пункту…">
     <div class="seg" id="bm"></div>
-    <div class="sub">Шари</div>
+    <div class="sub">Шари карти</div>
     <div id="ls"></div>
     <div id="ladd" style="display:none"><button id="addl">+ Новий шар</button></div>
     <div class="sub" id="iosub" style="display:none">Дані</div>
     <div id="io" style="display:none">
-      <button id="imp">Імпорт KML / KMZ / JSON</button>
-      <button id="exp">Експорт JSON</button>
+      <button id="imp">📥 Імпорт KML / KMZ / JSON</button>
+      <button id="exp">📤 Експорт JSON</button>
       <input type="file" id="fi" accept=".kml,.kmz,.json,.geojson" multiple hidden>
     </div>
   </div>
@@ -425,7 +449,7 @@ let admin=false,active=null,cur=null,shapeEd=null,state=load(),groups={},objs={}
 
 function load(){
   try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.layers&&s.feats)return s}catch(e){}
-  return{layers:[{id:'l1',name:'Лінія фронту',visible:true},{id:'l2',name:'Події',visible:true}],feats:[]}
+  return{layers:[{id:'l1',name:'Лінія фронту',visible:true},{id:'l2',name:'Звільнення та події',visible:true}],feats:[]}
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2600)}
@@ -460,11 +484,11 @@ function mk(f){
   const p=f.gj.properties,c=p.color||'#e53935',g=f.gj.geometry;let l;
   if(g.type==='Point'){
     const ll=rv(g.coordinates);
-    l=p.radius?L.circle(ll,{radius:p.radius,color:c,fillColor:c,fillOpacity:.2,weight:2})
-      :L.marker(ll,{icon:L.divIcon({className:'',html:'<div class="pin" style="background:'+c+'"></div>',iconSize:[16,16],iconAnchor:[8,8]})})
+    l=p.radius?L.circle(ll,{radius:p.radius,color:c,fillColor:c,fillOpacity:.2,weight:2.5})
+      :L.marker(ll,{icon:L.divIcon({className:'',html:'<div class="pin" style="background:'+c+'"></div>',iconSize:[18,18],iconAnchor:[9,9]})})
   }
-  else if(g.type==='LineString')l=L.polyline(g.coordinates.map(rv),{color:c,weight:3});
-  else l=L.polygon(g.coordinates.map(r=>r.map(rv)),{color:c,weight:2,fillColor:c,fillOpacity:.3});
+  else if(g.type==='LineString')l=L.polyline(g.coordinates.map(rv),{color:c,weight:3.5});
+  else l=L.polygon(g.coordinates.map(r=>r.map(rv)),{color:c,weight:2.5,fillColor:c,fillOpacity:.3});
   l._g=f.layer;l._id=f.id;l.bindPopup(()=>pop(f));
   (groups[f.layer]||(groups[f.layer]=L.featureGroup())).addLayer(l);objs[f.id]=l
 }
@@ -527,7 +551,7 @@ function stopDraw(){if(cur){cur.disable();cur=null}}
 document.querySelectorAll('#tb button').forEach(b=>b.onclick=()=>{
   if(!admin)return;if(!active||!state.layers.find(l=>l.id===active))return toast('Спершу оберіть шар у панелі зліва');
   stopDraw();const t=b.dataset.t,o={shapeOptions:{color:'#e53935'}};
-  cur=t==='marker'?new L.Draw.Marker(map,{icon:L.divIcon({className:'',html:'<div class="pin" style="background:#e53935"></div>',iconSize:[16,16],iconAnchor:[8,8]})}):
+  cur=t==='marker'?new L.Draw.Marker(map,{icon:L.divIcon({className:'',html:'<div class="pin" style="background:#e53935"></div>',iconSize:[18,18],iconAnchor:[9,9]})}):
   t==='polyline'?new L.Draw.Polyline(map,o):t==='polygon'?new L.Draw.Polygon(map,o):t==='rectangle'?new L.Draw.Rectangle(map,o):new L.Draw.Circle(map,o);cur.enable()
 });
 map.on(L.Draw.Event.CREATED,e=>{
@@ -586,7 +610,7 @@ function setAdmin(v){
 }
 $('#adm').onclick=()=>{
   if(admin)return setAdmin(false);
-  modal('<h3>Вхід для адміністратора</h3><label>Код доступу<input id="pw" type="password" autocomplete="off"></label><div id="er" style="color:#ef4444;font-size:12px;min-height:16px"></div><div class="btns"><button id="mc">Скасувати</button><button id="ms" class="pri">Увійти</button></div>');
+  modal('<h3>Вхід для адміністратора</h3><label>Код доступу<input id="pw" type="password" autocomplete="off"></label><div id="er" style="color:#ef4444;font-size:12.5px;min-height:18px"></div><div class="btns"><button id="mc">Скасувати</button><button id="ms" class="pri">Увійти</button></div>');
   const go=()=>{if($('#pw').value.trim().toLowerCase()===CODE){closeM();setAdmin(true)}else $('#er').textContent='Невірний код'};
   $('#mc').onclick=closeM;$('#ms').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()};$('#pw').focus()
 };
