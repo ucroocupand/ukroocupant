@@ -11,10 +11,11 @@
   --bg: rgba(15, 22, 36, 0.9);
   --fg: #f8fafc;
   --mut: #94a3b8;
-  --line: rgba(255, 255, 255, 0.12);
+  --line: rgba(255, 255, 255, 0.13);
   --hov: rgba(255, 255, 255, 0.08);
   --acc: #2563eb;
   --gold: #f5b400;
+  --red: #ef4444;
   --shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
 }
 @media (prefers-color-scheme: light) {
@@ -39,6 +40,19 @@ html, body {
 }
 
 #map { position: absolute; inset: 0; z-index: 1; }
+#mymaps-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: none;
+  background: #060a12;
+}
+#mymaps-wrap.on { display: block; }
+#mymaps-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 
 .box {
   background: var(--bg);
@@ -58,7 +72,7 @@ button {
   cursor: pointer;
   padding: 8px 12px;
   border-radius: 10px;
-  transition: background .15s, transform .1s;
+  transition: background .15s, transform .1s, filter .15s;
 }
 button:hover { background: var(--hov); }
 button:active { transform: scale(0.97); }
@@ -69,6 +83,13 @@ button.pri {
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
 }
 button.pri:hover { filter: brightness(1.08); }
+button.dan {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+button.dan:hover { filter: brightness(1.08); }
 
 /* Бічна панель */
 #side {
@@ -76,7 +97,7 @@ button.pri:hover { filter: brightness(1.08); }
   z-index: 1000;
   top: 14px;
   left: 14px;
-  width: 315px;
+  width: 320px;
   max-height: calc(100% - 92px);
   display: flex;
   flex-direction: column;
@@ -119,12 +140,33 @@ button.pri:hover { filter: brightness(1.08); }
 }
 #srch:focus { border-color: var(--gold); }
 
-/* Вкладки */
+.mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin: 4px 0 8px;
+  background: rgba(245, 180, 0, 0.12);
+  border: 1px solid rgba(245, 180, 0, 0.28);
+  padding: 4px;
+  border-radius: 12px;
+}
+.mode-tabs button {
+  font-size: 13px;
+  padding: 7px 6px;
+  border-radius: 9px;
+  font-weight: 700;
+}
+.mode-tabs button.on {
+  background: var(--gold);
+  color: #0b1120;
+  box-shadow: 0 2px 10px rgba(245, 180, 0, 0.35);
+}
+
 .tabs {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 4px;
-  margin: 6px 0 12px;
+  margin: 4px 0 12px;
   background: rgba(127, 127, 127, 0.12);
   padding: 4px;
   border-radius: 12px;
@@ -192,7 +234,7 @@ button.pri:hover { filter: brightness(1.08); }
 .row button { padding: 4px 8px; opacity: .75; font-size: 14px; }
 .row button:hover { opacity: 1; }
 
-#addl, #resetst {
+#addl, #resetst, #openext {
   width: 100%;
   text-align: left;
   margin-top: 6px;
@@ -264,21 +306,22 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
   position: fixed;
   inset: 0;
   z-index: 3000;
-  background: rgba(0, 0, 0, 0.62);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
   display: none;
   align-items: center;
   justify-content: center;
 }
-#md { width: 380px; max-width: 92vw; padding: 20px; }
-#md h3 { margin: 0 0 14px; font-size: 17px; }
+#md { width: 390px; max-width: 92vw; padding: 22px; }
+#md h3 { margin: 0 0 12px; font-size: 18px; font-weight: 700; }
+#md p.mtxt { margin: 0 0 14px; color: var(--mut); font-size: 14px; }
 #md label { display: block; margin-bottom: 12px; color: var(--mut); font-size: 13px; }
 #md input:not([type=color]), #md textarea, #md select {
   display: block;
   width: 100%;
   margin-top: 5px;
   padding: 9px 12px;
-  background: rgba(127, 127, 127, 0.08);
+  background: rgba(127, 127, 127, 0.09);
   border: 1px solid var(--line);
   border-radius: 10px;
   color: var(--fg);
@@ -289,6 +332,7 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
 #md textarea { min-height: 85px; resize: vertical; }
 .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
+/* Маркери, вузли редагування та підказки Leaflet Draw */
 .pin {
   width: 18px;
   height: 18px;
@@ -296,6 +340,31 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
   border: 3px solid #fff;
   box-shadow: 0 0 0 2px rgba(0,0,0,0.3), 0 4px 10px rgba(0,0,0,0.55);
 }
+.leaflet-div-icon.leaflet-editing-icon {
+  background: #ffffff !important;
+  border: 3px solid #2563eb !important;
+  border-radius: 50% !important;
+  width: 12px !important;
+  height: 12px !important;
+  margin-left: -6px !important;
+  margin-top: -6px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.55) !important;
+}
+.leaflet-draw-tooltip {
+  background: rgba(15, 22, 36, 0.92) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #f8fafc !important;
+  border-radius: 10px !important;
+  padding: 6px 11px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45) !important;
+}
+.leaflet-draw-tooltip:before {
+  border-right-color: rgba(15, 22, 36, 0.92) !important;
+}
+
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
   background: var(--bg);
   backdrop-filter: blur(14px);
@@ -314,7 +383,7 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
 
 @media (max-width: 700px) {
   #tb { top: auto; bottom: 78px; max-width: calc(100% - 24px); }
-  #side { width: 260px; }
+  #side { width: 265px; }
 }
 
 /* Інтро з фоновим фото */
@@ -427,6 +496,10 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
 
 <div id="map"></div>
 
+<div id="mymaps-wrap" class="on">
+  <iframe id="mymaps-frame" src="https://www.google.com/maps/d/u/0/embed?mid=1XedIqBnroHHVEPa-kAKoWu02-QerG-s&ll=52.24974419150111%2C79.7765545&z=4" allowfullscreen loading="lazy"></iframe>
+</div>
+
 <div id="intro">
   <div class="bg-img"></div>
   <div class="cnt">
@@ -440,6 +513,10 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
 <div id="side" class="box">
   <header><span>UKR LIBERATION</span><button id="tg" title="Згорнути">–</button></header>
   <div id="body">
+    <div class="mode-tabs">
+      <button id="tab-mm" class="on">🗺️ My Maps</button>
+      <button id="tab-lf">🛰️ Інтерактив</button>
+    </div>
     <input id="srch" placeholder="Пошук населеного пункту...">
     <div class="tabs" id="bm"></div>
     <div class="sub">Шари карти</div>
@@ -448,6 +525,7 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
       <button id="addl">+ Новий шар</button>
       <button id="resetst">↺ Скинути шари за замовчуванням</button>
     </div>
+    <button id="openext">↗ Відкрити в Google My Maps</button>
   </div>
 </div>
 
@@ -467,8 +545,23 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 <script>
+/* Українська локалізація підказок Leaflet Draw */
+if (window.L && L.drawLocal) {
+  L.drawLocal.draw.handlers.marker.tooltip.start = 'Натисніть на карту, щоб поставити мітку';
+  L.drawLocal.draw.handlers.polyline.tooltip.start = 'Натисніть, щоб почати лінію';
+  L.drawLocal.draw.handlers.polyline.tooltip.cont = 'Натисніть, щоб продовжити лінію';
+  L.drawLocal.draw.handlers.polyline.tooltip.end = 'Натисніть на останню точку, щоб завершити';
+  L.drawLocal.draw.handlers.polygon.tooltip.start = 'Натисніть, щоб почати фігуру';
+  L.drawLocal.draw.handlers.polygon.tooltip.cont = 'Натисніть, щоб продовжити фігуру';
+  L.drawLocal.draw.handlers.polygon.tooltip.end = 'Натисніть на першу точку, щоб замкнути';
+  L.drawLocal.draw.handlers.rectangle.tooltip.start = 'Потягніть, щоб намалювати прямокутник';
+  L.drawLocal.draw.handlers.simpleshape.tooltip.end = 'Відпустіть кнопку миші, щоб завершити';
+  L.drawLocal.draw.handlers.circle.tooltip.start = 'Потягніть, щоб задати радіус кола';
+}
+
 const CODE = 'admin1488';
-const KEY = 'ukr_liberation_map_v3';
+const KEY = 'ukr_liberation_map_v5';
+const MM_URL = 'https://www.google.com/maps/d/u/0/viewer?mid=1XedIqBnroHHVEPa-kAKoWu02-QerG-s&ll=52.24974419150111%2C79.7765545&z=4';
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -511,7 +604,28 @@ function modal(h) { $('#md').innerHTML = h; $('#ov').style.display = 'flex'; }
 function closeM() { $('#ov').style.display = 'none'; }
 $('#ov').onclick = e => { if (e.target.id === 'ov') closeM(); };
 
-/* Карта та вкладки підкладок */
+function confirmModal(title, text, onYes) {
+  modal(
+    '<h3>' + esc(title) + '</h3>' +
+    '<p class="mtxt">' + esc(text) + '</p>' +
+    '<div class="btns"><button id="mc">Скасувати</button><button id="my" class="dan">Видалити</button></div>'
+  );
+  $('#mc').onclick = closeM;
+  $('#my').onclick = () => { closeM(); onYes(); };
+}
+
+function setMode(mode) {
+  const isMM = mode === 'mm';
+  $('#mymaps-wrap').classList.toggle('on', isMM);
+  $('#tab-mm').classList.toggle('on', isMM);
+  $('#tab-lf').classList.toggle('on', !isMM);
+  if (!isMM) setTimeout(() => map.invalidateSize(), 60);
+  try { localStorage.setItem(KEY + '_mode', mode); } catch (e) {}
+}
+$('#tab-mm').onclick = () => setMode('mm');
+$('#tab-lf').onclick = () => setMode('lf');
+$('#openext').onclick = () => window.open(MM_URL, '_blank', 'noopener,noreferrer');
+
 const map = L.map('map', { zoomControl: false, worldCopyJump: true }).setView([48.7, 31.3], 6);
 L.control.zoom({ position: 'topright' }).addTo(map);
 const tl = (u, o) => L.tileLayer(u, Object.assign({ maxZoom: 19 }, o));
@@ -528,6 +642,7 @@ const bases = {
 
 let bcur = null;
 function setBase(n) {
+  setMode('lf');
   if (bcur) map.removeLayer(bcur);
   bcur = bases[n];
   bcur.addTo(map);
@@ -544,7 +659,6 @@ let sb = 'Супутник';
 try { sb = localStorage.getItem(KEY + '_b') || sb; } catch (e) {}
 setBase(bases[sb] ? sb : 'Супутник');
 
-/* Об'єкти */
 function mk(f) {
   const p = f.gj.properties, c = p.color || '#dc2626', g = f.gj.geometry;
   let l;
@@ -596,14 +710,17 @@ function refeat(f) {
 const byId = id => state.feats.find(f => f.id === id);
 window.ed = id => { map.closePopup(); openEdit(id); };
 window.dl = id => {
-  if (!admin || !confirm('Видалити цей об’єкт?')) return;
+  if (!admin) return;
   map.closePopup();
-  const o = objs[id];
-  if (o) groups[o._g].removeLayer(o);
-  delete objs[id];
-  state.feats = state.feats.filter(f => f.id !== id);
-  save();
-  panel();
+  confirmModal('Видалення об’єкта', 'Видалити цей об’єкт з карти?', () => {
+    const o = objs[id];
+    if (o) groups[o._g].removeLayer(o);
+    delete objs[id];
+    state.feats = state.feats.filter(f => f.id !== id);
+    save();
+    panel();
+    toast('Об’єкт видалено');
+  });
 };
 window.sh = id => {
   map.closePopup();
@@ -622,6 +739,7 @@ $('#done').onclick = () => {
     f.gj.geometry = j.geometry;
     if (l.getRadius) f.gj.properties.radius = l.getRadius();
     save();
+    toast('Форму збережено');
   }
   shapeEd = null;
   $('#done').style.display = 'none';
@@ -648,7 +766,6 @@ function openEdit(id) {
   };
 }
 
-/* Панель шарів */
 function panel() {
   const el = $('#ls');
   el.innerHTML = '';
@@ -672,12 +789,14 @@ function panel() {
       if (v) { ly.name = v; save(); panel(); }
     };
     if (x) x.onclick = () => {
-      if (!confirm('Видалити шар «' + ly.name + '» разом з усіма об’єктами?')) return;
-      state.feats = state.feats.filter(f => f.layer !== ly.id);
-      state.layers = state.layers.filter(l => l !== ly);
-      if (active === ly.id) active = state.layers[0] && state.layers[0].id;
-      save();
-      build();
+      confirmModal('Видалення шару', 'Видалити шар «' + ly.name + '» разом з усіма об’єктами?', () => {
+        state.feats = state.feats.filter(f => f.layer !== ly.id);
+        state.layers = state.layers.filter(l => l !== ly);
+        if (active === ly.id) active = state.layers[0] && state.layers[0].id;
+        save();
+        build();
+        toast('Шар видалено');
+      });
     };
     el.appendChild(d);
   });
@@ -695,12 +814,13 @@ $('#addl').onclick = () => {
 };
 
 $('#resetst').onclick = () => {
-  if (!confirm('Скинути шари до стандартних (ТОТ, Лінія фронту, Звільнення та події)?')) return;
-  state = defaultState();
-  active = state.layers[0].id;
-  save();
-  build();
-  toast('Шари скинуто');
+  confirmModal('Скидання шарів', 'Скинути шари до стандартних (ТОТ, Лінія фронту, Звільнення та події)?', () => {
+    state = defaultState();
+    active = state.layers[0].id;
+    save();
+    build();
+    toast('Шари скинуто');
+  });
 };
 
 $('#tg').onclick = () => {
@@ -709,11 +829,11 @@ $('#tg').onclick = () => {
   $('#tg').textContent = s.classList.contains('c') ? '+' : '–';
 };
 
-/* Пошук */
 $('#srch').onkeydown = async e => {
   if (e.key !== 'Enter') return;
   const q = e.target.value.trim();
   if (!q) return;
+  setMode('lf');
   try {
     const r = await (await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q))).json();
     if (r[0]) {
@@ -723,10 +843,10 @@ $('#srch').onkeydown = async e => {
   } catch (x) { toast('Пошук недоступний'); }
 };
 
-/* Малювання */
 function stopDraw() { if (cur) { cur.disable(); cur = null; } }
 document.querySelectorAll('#tb button').forEach(b => b.onclick = () => {
   if (!admin) return;
+  setMode('lf');
   if (!active || !state.layers.find(l => l.id === active)) return toast('Спершу оберіть шар у панелі зліва');
   stopDraw();
   const t = b.dataset.t, o = { shapeOptions: { color: '#dc2626' } };
@@ -752,7 +872,6 @@ map.on(L.Draw.Event.CREATED, e => {
   openEdit(f.id);
 });
 
-/* Адмін */
 function setAdmin(v) {
   admin = v;
   document.body.classList.toggle('adm', v);
@@ -781,6 +900,9 @@ $('#adm').onclick = () => {
 };
 
 build();
+let sm = 'mm';
+try { sm = localStorage.getItem(KEY + '_mode') || 'mm'; } catch (e) {}
+setMode(sm);
 
 setTimeout(() => map.flyTo([48.7, 31.3], 6, { duration: 2.5 }), 1100);
 setTimeout(() => $('#intro').classList.add('out'), 2200);
