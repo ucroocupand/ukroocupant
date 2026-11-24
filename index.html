@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
 <style>
 :root {
-  --bg: rgba(15, 21, 34, 0.9);
+  --bg: rgba(15, 22, 36, 0.9);
   --fg: #f8fafc;
   --mut: #94a3b8;
   --line: rgba(255, 255, 255, 0.12);
@@ -19,7 +19,7 @@
 }
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: rgba(255, 255, 255, 0.9);
+    --bg: rgba(255, 255, 255, 0.92);
     --fg: #0f172a;
     --mut: #475569;
     --line: rgba(15, 23, 42, 0.12);
@@ -70,13 +70,13 @@ button.pri {
 }
 button.pri:hover { filter: brightness(1.08); }
 
-/* Ліва панель */
+/* Бічна панель */
 #side {
   position: absolute;
   z-index: 1000;
   top: 14px;
   left: 14px;
-  width: 310px;
+  width: 315px;
   max-height: calc(100% - 92px);
   display: flex;
   flex-direction: column;
@@ -119,7 +119,7 @@ button.pri:hover { filter: brightness(1.08); }
 }
 #srch:focus { border-color: var(--gold); }
 
-/* Вкладки базових карт */
+/* Вкладки */
 .tabs {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -172,7 +172,6 @@ button.pri:hover { filter: brightness(1.08); }
   cursor: pointer;
   width: 17px;
   height: 17px;
-  border-radius: 4px;
 }
 .row .nm {
   flex: 1;
@@ -193,7 +192,7 @@ button.pri:hover { filter: brightness(1.08); }
 .row button { padding: 4px 8px; opacity: .75; font-size: 14px; }
 .row button:hover { opacity: 1; }
 
-#addl, #syncmm {
+#addl, #resetst {
   width: 100%;
   text-align: left;
   margin-top: 6px;
@@ -202,7 +201,7 @@ button.pri:hover { filter: brightness(1.08); }
   font-weight: 500;
 }
 
-/* Верхній тулбар інструментів */
+/* Тулбар малювання */
 #tb {
   position: absolute;
   z-index: 1000;
@@ -260,7 +259,7 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
   font-size: 14px;
 }
 
-/* Модальне вікно */
+/* Модалка */
 #ov {
   position: fixed;
   inset: 0;
@@ -318,7 +317,7 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
   #side { width: 260px; }
 }
 
-/* === ІНТРО-АНІМАЦІЯ З ФОТО НА ФОНІ === */
+/* Інтро з фоновим фото */
 #intro {
   position: fixed;
   inset: 0;
@@ -346,7 +345,7 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(5, 8, 15, 0.3) 0%, rgba(5, 8, 15, 0.92) 80%);
+  background: radial-gradient(circle at center, rgba(5, 8, 15, 0.25) 0%, rgba(5, 8, 15, 0.92) 82%);
   z-index: 1;
 }
 
@@ -404,7 +403,7 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
 @keyframes bgZoom {
   0% { opacity: 0; transform: scale(0.92); }
   25% { opacity: 0.85; }
-  100% { opacity: 0.7; transform: scale(1.06); }
+  100% { opacity: 0.72; transform: scale(1.06); }
 }
 @keyframes fu {
   from { opacity: 0; transform: translateY(16px); }
@@ -447,7 +446,7 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
     <div id="ls"></div>
     <div id="ladd" style="display:none">
       <button id="addl">+ Новий шар</button>
-      <button id="syncmm">🔄 Оновити з My Maps</button>
+      <button id="resetst">↺ Скинути шари за замовчуванням</button>
     </div>
   </div>
 </div>
@@ -469,8 +468,7 @@ body.adm #adm { border-color: rgba(245, 180, 0, 0.65); color: var(--gold); }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 <script>
 const CODE = 'admin1488';
-const KEY = 'ukr_liberation_map_v2';
-const MM_MID = '1XedIqBnroHHVEPa-kAKoWu02-QerG-s';
+const KEY = 'ukr_liberation_map_v3';
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -485,8 +483,7 @@ function defaultState() {
       { id: 'front', name: 'Лінія фронту', visible: true },
       { id: 'lib', name: 'Звільнення та події', visible: true }
     ],
-    feats: [],
-    mmImported: false
+    feats: []
   };
 }
 
@@ -507,7 +504,7 @@ function toast(t) {
   e.textContent = t;
   e.style.display = 'block';
   clearTimeout(e._t);
-  e._t = setTimeout(() => e.style.display = 'none', 2800);
+  e._t = setTimeout(() => e.style.display = 'none', 2600);
 }
 
 function modal(h) { $('#md').innerHTML = h; $('#ov').style.display = 'flex'; }
@@ -547,7 +544,7 @@ let sb = 'Супутник';
 try { sb = localStorage.getItem(KEY + '_b') || sb; } catch (e) {}
 setBase(bases[sb] ? sb : 'Супутник');
 
-/* Об'єкти на карті */
+/* Об'єкти */
 function mk(f) {
   const p = f.gj.properties, c = p.color || '#dc2626', g = f.gj.geometry;
   let l;
@@ -696,6 +693,16 @@ $('#addl').onclick = () => {
   save();
   build();
 };
+
+$('#resetst').onclick = () => {
+  if (!confirm('Скинути шари до стандартних (ТОТ, Лінія фронту, Звільнення та події)?')) return;
+  state = defaultState();
+  active = state.layers[0].id;
+  save();
+  build();
+  toast('Шари скинуто');
+};
+
 $('#tg').onclick = () => {
   const s = $('#side');
   s.classList.toggle('c');
@@ -745,120 +752,7 @@ map.on(L.Draw.Event.CREATED, e => {
   openEdit(f.id);
 });
 
-/* Підвантаження шарів і об'єктів з Google My Maps (MID) */
-const kc = s => {
-  s = (s || '').trim();
-  return s.length >= 8 ? '#' + s.slice(6, 8) + s.slice(4, 6) + s.slice(2, 4) : null;
-};
-
-function parseKMLIntoState(txt) {
-  const d = new DOMParser().parseFromString(txt, 'text/xml');
-  if (!d.querySelector('Placemark')) return 0;
-
-  const st = {};
-  d.querySelectorAll('Style[id]').forEach(s => {
-    const g = t => { const e = s.querySelector(t + ' > color'); return e && kc(e.textContent); };
-    st[s.id] = g('LineStyle') || g('PolyStyle') || g('IconStyle');
-  });
-  d.querySelectorAll('StyleMap[id]').forEach(m => m.querySelectorAll('Pair').forEach(p => {
-    const k = p.querySelector('key');
-    if (k && k.textContent === 'normal') {
-      const u = p.querySelector('styleUrl');
-      if (u) st[m.id] = st[u.textContent.replace('#', '')];
-    }
-  }));
-
-  const co = t => (t ? t.textContent : '').trim().split(/\s+/)
-    .map(s => s.split(',').map(Number))
-    .filter(a => a.length >= 2 && !isNaN(a[0]) && !isNaN(a[1]))
-    .map(a => [a[0], a[1]]);
-
-  const lm = {};
-  const ensureLayer = name => {
-    const clean = (name || 'ТОТ').trim();
-    if (lm[clean]) return lm[clean];
-    const existing = state.layers.find(x => x.name.toLowerCase() === clean.toLowerCase());
-    if (existing) { lm[clean] = existing; return existing; }
-    const l = { id: uid(), name: clean, visible: true };
-    state.layers.push(l);
-    lm[clean] = l;
-    return l;
-  };
-
-  let added = 0;
-  d.querySelectorAll('Placemark').forEach(pm => {
-    let fo = pm.parentElement;
-    while (fo && fo.tagName !== 'Folder') fo = fo.parentElement;
-    let ln = 'ТОТ';
-    if (fo) {
-      const n = Array.from(fo.children).find(c => c.tagName === 'name');
-      if (n && n.textContent.trim()) ln = n.textContent.trim();
-    }
-    const ly = ensureLayer(ln);
-    const ne = Array.from(pm.children).find(c => c.tagName === 'name');
-    const de = Array.from(pm.children).find(c => c.tagName === 'description');
-    const su = Array.from(pm.children).find(c => c.tagName === 'styleUrl');
-    const desc = de ? new DOMParser().parseFromString(de.textContent.replace(/<br\s*\/?>/gi, '\n'), 'text/html').body.textContent.trim() : '';
-    const color = (su && st[su.textContent.replace('#', '')]) || '#dc2626';
-
-    pm.querySelectorAll('Point,LineString,Polygon').forEach(g => {
-      let geo;
-      if (g.tagName === 'Point') {
-        const c = co(g.querySelector('coordinates'));
-        if (c[0]) geo = { type: 'Point', coordinates: c[0] };
-      } else if (g.tagName === 'LineString') {
-        const c = co(g.querySelector('coordinates'));
-        if (c.length > 1) geo = { type: 'LineString', coordinates: c };
-      } else {
-        const rings = [], o = g.querySelector('outerBoundaryIs coordinates');
-        if (o) rings.push(co(o));
-        g.querySelectorAll('innerBoundaryIs coordinates').forEach(i => rings.push(co(i)));
-        if (rings[0] && rings[0].length > 2) geo = { type: 'Polygon', coordinates: rings };
-      }
-      if (geo) {
-        state.feats.push({
-          id: uid(),
-          layer: ly.id,
-          gj: { type: 'Feature', properties: { name: ne ? ne.textContent.trim() : '', desc, color }, geometry: geo }
-        });
-        added++;
-      }
-    });
-  });
-  return added;
-}
-
-async function syncFromMyMaps(manual = false) {
-  const kmlUrl = `https://www.google.com/maps/d/u/0/kml?forcekml=1&mid=${encodeURIComponent(MM_MID)}`;
-  const candidates = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(kmlUrl)}`,
-    `https://corsproxy.io/?${encodeURIComponent(kmlUrl)}`
-  ];
-  for (const url of candidates) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const txt = await res.text();
-      if (manual) {
-        state.feats = [];
-      }
-      const n = parseKMLIntoState(txt);
-      if (n > 0) {
-        state.mmImported = true;
-        save();
-        build();
-        if (manual) toast(`Завантажено об’єктів з My Maps: ${n}`);
-        return true;
-      }
-    } catch (e) {}
-  }
-  if (manual) toast('Не вдалося отримати доступ до My Maps (перевірте доступ за посиланням)');
-  return false;
-}
-
-$('#syncmm').onclick = () => syncFromMyMaps(true);
-
-/* Режим адміністратора */
+/* Адмін */
 function setAdmin(v) {
   admin = v;
   document.body.classList.toggle('adm', v);
@@ -887,7 +781,6 @@ $('#adm').onclick = () => {
 };
 
 build();
-if (!state.mmImported) syncFromMyMaps(false);
 
 setTimeout(() => map.flyTo([48.7, 31.3], 6, { duration: 2.5 }), 1100);
 setTimeout(() => $('#intro').classList.add('out'), 2200);
