@@ -1,69 +1,415 @@
 <!DOCTYPE html>
-<html lang="uk"><head><meta charset="utf-8">
+<html lang="uk">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Карта подій в Україні</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
 <style>
-:root{--bg:#fff;--fg:#1a1a1a;--mut:#777;--line:#e3e3e3;--hov:#f3f3f3}
-@media(prefers-color-scheme:dark){:root{--bg:#1c1c1e;--fg:#f2f2f2;--mut:#9a9a9a;--line:#343436;--hov:#2a2a2c}}
-*{box-sizing:border-box}html,body{height:100%;margin:0;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--fg)}
-#map{position:absolute;inset:0}
-.box{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 10px #0003}
-button,input,select,textarea{font:inherit;color:inherit}
-button{background:none;border:0;cursor:pointer;padding:5px 9px;border-radius:6px}button:hover{background:var(--hov)}
-button.pri{background:var(--fg);color:var(--bg)}
-#side{position:absolute;z-index:1000;top:10px;left:10px;width:240px;max-height:calc(100% - 70px);display:flex;flex-direction:column}
-#side header{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;font-weight:600}
-#side.c #body{display:none}
-#body{overflow:auto;padding:0 6px 8px}
-#srch{width:100%;border:1px solid var(--line);background:none;border-radius:6px;padding:5px 8px;margin-bottom:6px}
-.row{display:flex;align-items:center;gap:6px;padding:3px 4px;border-radius:6px}.row.act{background:var(--hov)}
-.row .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default}.row small{color:var(--mut)}
-.row button{padding:0 5px}
-.seg{display:flex;gap:2px;margin:6px 0}.seg button{flex:1;font-size:12px;padding:4px 2px;border:1px solid var(--line)}.seg button.on{background:var(--fg);color:var(--bg)}
-.sub{color:var(--mut);font-size:11px;margin:8px 4px 2px;text-transform:uppercase;letter-spacing:.04em}
-#tb{position:absolute;z-index:1000;top:10px;left:50%;transform:translateX(-50%);display:none;padding:3px;gap:2px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 330px)}
-body.adm #tb{display:flex}
-#adm{position:absolute;z-index:1000;right:10px;bottom:24px;padding:6px 12px;font-size:12px;opacity:.85}
-#done{position:absolute;z-index:1000;bottom:70px;left:50%;transform:translateX(-50%);display:none;padding:8px 14px}
-#toast{position:absolute;z-index:2000;bottom:70px;left:50%;transform:translateX(-50%);padding:8px 14px;display:none}
-#ov{position:fixed;inset:0;z-index:3000;background:#0006;display:none;align-items:center;justify-content:center}
-#md{width:320px;max-width:92vw;padding:16px}#md h3{margin:0 0 10px;font-size:15px}
-#md label{display:block;margin-bottom:8px;color:var(--mut);font-size:12px}
-#md input:not([type=color]),#md textarea,#md select{display:block;width:100%;margin-top:3px;padding:6px 8px;background:none;border:1px solid var(--line);border-radius:6px;color:var(--fg)}
-#md select option{color:#000}#md textarea{min-height:70px;resize:vertical}
-.btns{display:flex;justify-content:flex-end;gap:6px;margin-top:10px}
-.pin{width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 4px #0008}
-.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--bg);color:var(--fg)}
-.pp b{display:block;font-size:14px;margin-bottom:3px}.pp div{white-space:pre-wrap}.pp .a{margin-top:8px;display:flex;gap:4px}.pp .a button{border:1px solid var(--line);padding:2px 8px}
-@media(max-width:700px){#tb{top:auto;bottom:70px;max-width:calc(100% - 20px)}#side{width:200px}}
-#intro{position:fixed;inset:0;z-index:5000;background:#0b1220;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;transition:opacity .9s ease,visibility .9s}
-#intro.out{opacity:0;visibility:hidden}
-#intro h1{margin:0;font-size:clamp(26px,6vw,46px);font-weight:600;letter-spacing:.04em;opacity:0;animation:fu .9s .2s forwards}
-#intro p{margin:0;color:#9fb0cc;opacity:0;animation:fu .9s .6s forwards}
-#intro i{display:block;height:2px;width:0;background:linear-gradient(90deg,#1e88e5,#ffd600);animation:ln 1.6s .3s forwards}
-@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes ln{to{width:min(260px,60vw)}}
-#side,#adm{animation:sl .8s 1.6s both}
-@keyframes sl{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){#intro,#intro *,#side,#adm{animation:none!important;transition:none!important}#intro h1,#intro p{opacity:1}}
-#intro{background:linear-gradient(#0b1220cc,#0b1220cc),url(logo.jpg) center/min(85vmin,560px) no-repeat #0b1220}
-</style></head><body>
+:root {
+  --bg: rgba(255, 255, 255, 0.85);
+  --fg: #141824;
+  --mut: #64748b;
+  --line: rgba(0, 0, 0, 0.09);
+  --hov: rgba(0, 0, 0, 0.05);
+  --acc: #1e88e5;
+  --gold: #f5b400;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: rgba(16, 22, 34, 0.84);
+    --fg: #f1f5f9;
+    --mut: #94a3b8;
+    --line: rgba(255, 255, 255, 0.11);
+    --hov: rgba(255, 255, 255, 0.07);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body {
+  height: 100%;
+  margin: 0;
+  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--fg);
+  background: #070b14;
+  overflow: hidden;
+}
+
+#map { position: absolute; inset: 0; z-index: 1; }
+
+.box {
+  background: var(--bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  transition: transform .25s ease, opacity .25s ease, background .2s;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; outline: none; }
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background .15s, transform .1s;
+}
+button:hover { background: var(--hov); }
+button:active { transform: scale(0.97); }
+button.pri {
+  background: linear-gradient(135deg, #1e88e5, #1565c0);
+  color: #fff;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(30, 136, 229, 0.35);
+}
+button.pri:hover { filter: brightness(1.08); }
+
+#side {
+  position: absolute;
+  z-index: 1000;
+  top: 12px;
+  left: 12px;
+  width: 260px;
+  max-height: calc(100% - 80px);
+  display: flex;
+  flex-direction: column;
+}
+#side header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: .01em;
+}
+#side header span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#side header span::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold);
+}
+#side.c #body { display: none; }
+#body { overflow: auto; padding: 0 10px 12px; }
+
+#srch {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: rgba(127, 127, 127, 0.06);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 8px;
+  transition: border-color .2s;
+}
+#srch:focus { border-color: var(--acc); }
+
+.seg {
+  display: flex;
+  gap: 3px;
+  margin: 6px 0 10px;
+  background: rgba(127, 127, 127, 0.08);
+  padding: 3px;
+  border-radius: 9px;
+}
+.seg button {
+  flex: 1;
+  font-size: 11.5px;
+  padding: 5px 2px;
+  border-radius: 6px;
+}
+.seg button.on {
+  background: var(--fg);
+  color: var(--bg);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+.sub {
+  color: var(--mut);
+  font-size: 10.5px;
+  font-weight: 600;
+  margin: 10px 4px 4px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  transition: background .15s;
+}
+.row:hover { background: var(--hov); }
+.row.act {
+  background: rgba(30, 136, 229, 0.16);
+  outline: 1px solid rgba(30, 136, 229, 0.35);
+}
+.row input[type=checkbox] { accent-color: var(--acc); cursor: pointer; width: 15px; height: 15px; }
+.row .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.row small {
+  color: var(--mut);
+  background: rgba(127,127,127,0.12);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+.row button { padding: 2px 6px; opacity: .75; }
+.row button:hover { opacity: 1; }
+
+#addl, #imp, #exp { width: 100%; text-align: left; margin-top: 3px; font-size: 12.5px; }
+
+#tb {
+  position: absolute;
+  z-index: 1000;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  padding: 4px;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: calc(100% - 350px);
+}
+body.adm #tb { display: flex; animation: sl .3s ease; }
+#tb button { font-weight: 500; font-size: 12.5px; }
+
+#adm {
+  position: absolute;
+  z-index: 1000;
+  right: 12px;
+  bottom: 24px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 500;
+}
+body.adm #adm { border-color: rgba(245, 180, 0, 0.5); color: var(--gold); }
+
+#done {
+  position: absolute;
+  z-index: 1000;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  padding: 9px 18px;
+}
+
+#toast {
+  position: absolute;
+  z-index: 2000;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 9px 16px;
+  display: none;
+  font-weight: 500;
+}
+
+#ov {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#md { width: 340px; max-width: 92vw; padding: 18px; }
+#md h3 { margin: 0 0 12px; font-size: 16px; }
+#md label { display: block; margin-bottom: 10px; color: var(--mut); font-size: 12px; }
+#md input:not([type=color]), #md textarea, #md select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px 10px;
+  background: rgba(127,127,127,0.06);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--fg);
+}
+#md select option { color: #000; }
+#md textarea { min-height: 75px; resize: vertical; }
+.btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+.pin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2.5px solid #fff;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.25), 0 3px 8px rgba(0,0,0,0.5);
+}
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: var(--bg);
+  backdrop-filter: blur(12px);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.pp b { display: block; font-size: 14px; margin-bottom: 4px; }
+.pp div { white-space: pre-wrap; color: var(--mut); font-size: 12.5px; }
+.pp .a { margin-top: 10px; display: flex; gap: 5px; }
+.pp .a button { border: 1px solid var(--line); padding: 3px 9px; font-size: 12px; }
+
+.leaflet-control-zoom { border: none !important; box-shadow: var(--shadow) !important; border-radius: 10px !important; overflow: hidden; }
+.leaflet-control-zoom a { background: var(--bg) !important; color: var(--fg) !important; border-bottom: 1px solid var(--line) !important; backdrop-filter: blur(12px); }
+
+@media (max-width: 700px) {
+  #tb { top: auto; bottom: 72px; max-width: calc(100% - 24px); }
+  #side { width: 220px; }
+}
+
+#intro {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: #060a12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: #fff;
+  overflow: hidden;
+  transition: opacity .85s cubic-bezier(.4,0,.2,1), visibility .85s;
+}
+#intro.out { opacity: 0; visibility: hidden; pointer-events: none; }
+
+#intro .bg-img {
+  position: absolute;
+  inset: -5%;
+  background: url('logo.jpg') center/contain no-repeat;
+  opacity: 0;
+  filter: drop-shadow(0 0 40px rgba(245, 180, 0, 0.25));
+  animation: bgZoom 3.2s cubic-bezier(.16, 1, .3, 1) forwards;
+}
+#intro::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(6, 10, 18, 0.45) 0%, rgba(6, 10, 18, 0.88) 75%);
+  z-index: 1;
+}
+
+#intro .cnt {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  margin-top: min(38vh, 260px);
+}
+#intro h1 {
+  margin: 0;
+  font-size: clamp(24px, 5vw, 42px);
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.85);
+  opacity: 0;
+  animation: fu .8s .35s cubic-bezier(.16, 1, .3, 1) forwards;
+}
+#intro i {
+  display: block;
+  height: 3px;
+  width: 0;
+  margin: 12px 0;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #1e88e5, #ffd600);
+  box-shadow: 0 0 12px rgba(255, 214, 0, 0.5);
+  animation: ln 1.5s .45s cubic-bezier(.16, 1, .3, 1) forwards;
+}
+#intro p {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+  opacity: 0;
+  animation: fu .8s .65s cubic-bezier(.16, 1, .3, 1) forwards;
+}
+
+@keyframes bgZoom {
+  0% { opacity: 0; transform: scale(0.92); }
+  25% { opacity: 0.78; }
+  100% { opacity: 0.65; transform: scale(1.06); }
+}
+@keyframes fu {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ln {
+  to { width: min(280px, 65vw); }
+}
+#side, #adm { animation: sl .8s 1.9s both; }
+@keyframes sl {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #intro, #intro *, #side, #adm { animation: none !important; transition: none !important; }
+  #intro h1, #intro p, #intro .bg-img { opacity: 1; }
+}
+</style>
+</head>
+<body>
+
 <div id="map"></div>
-<div id="intro"><h1>Карта подій в Україні</h1><i></i><p>Завантаження…</p></div>
-<div id="side" class="box"><header><span>Карта подій</span><button id="tg" title="Згорнути">–</button></header>
-<div id="body"><input id="srch" placeholder="Пошук місця…">
-<div class="seg" id="bm"></div>
-<div class="sub">Шари</div><div id="ls"></div>
-<div id="ladd" style="display:none"><button id="addl">+ Новий шар</button></div>
-<div class="sub" id="iosub" style="display:none">Дані</div>
-<div id="io" style="display:none"><button id="imp">Імпорт KML / KMZ / JSON</button><button id="exp">Експорт JSON</button><input type="file" id="fi" accept=".kml,.kmz,.json,.geojson" multiple hidden></div>
-</div></div>
-<div id="tb" class="box">
-<button data-t="marker">Мітка</button><button data-t="polyline">Лінія</button><button data-t="polygon">Полігон</button><button data-t="rectangle">Прямокутник</button><button data-t="circle">Коло</button>
+
+<div id="intro">
+  <div class="bg-img"></div>
+  <div class="cnt">
+    <h1>Карта подій в Україні</h1>
+    <i></i>
+    <p>Ініціалізація карти…</p>
+  </div>
 </div>
-<button id="done" class="box pri">Готово</button>
+
+<div id="side" class="box">
+  <header><span>Карта подій</span><button id="tg" title="Згорнути">–</button></header>
+  <div id="body">
+    <input id="srch" placeholder="Пошук населеного пункту…">
+    <div class="seg" id="bm"></div>
+    <div class="sub">Шари</div>
+    <div id="ls"></div>
+    <div id="ladd" style="display:none"><button id="addl">+ Новий шар</button></div>
+    <div class="sub" id="iosub" style="display:none">Дані</div>
+    <div id="io" style="display:none">
+      <button id="imp">Імпорт KML / KMZ / JSON</button>
+      <button id="exp">Експорт JSON</button>
+      <input type="file" id="fi" accept=".kml,.kmz,.json,.geojson" multiple hidden>
+    </div>
+  </div>
+</div>
+
+<div id="tb" class="box">
+  <button data-t="marker">📍 Мітка</button>
+  <button data-t="polyline">〰️ Лінія</button>
+  <button data-t="polygon">⬠ Полігон</button>
+  <button data-t="rectangle">▭ Прямокутник</button>
+  <button data-t="circle">⭕ Коло</button>
+</div>
+
+<button id="done" class="box pri">✓ Зберегти форму</button>
 <div id="toast" class="box"></div>
 <button id="adm" class="box">Зайти як адмін</button>
 <div id="ov"><div id="md" class="box"></div></div>
@@ -72,124 +418,183 @@ body.adm #tb{display:flex}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
-const CODE='укроокупант катц',KEY='ukr_war_map_v1',$=s=>document.querySelector(s);
+const CODE='admin1488',KEY='ukr_war_map_v1',$=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,10),rv=a=>[a[1],a[0]];
 let admin=false,active=null,cur=null,shapeEd=null,state=load(),groups={},objs={};
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.layers&&s.feats)return s}catch(e){}
- return{layers:[{id:'l1',name:'Лінія фронту',visible:true},{id:'l2',name:'Події',visible:true}],feats:[]}}
+
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.layers&&s.feats)return s}catch(e){}
+  return{layers:[{id:'l1',name:'Лінія фронту',visible:true},{id:'l2',name:'Події',visible:true}],feats:[]}
+}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2600)}
-function modal(h){$('#md').innerHTML=h;$('#ov').style.display='flex'}function closeM(){$('#ov').style.display='none'}
+function modal(h){$('#md').innerHTML=h;$('#ov').style.display='flex'}
+function closeM(){$('#ov').style.display='none'}
 $('#ov').onclick=e=>{if(e.target.id==='ov')closeM()};
 
-/* map */
-const map=L.map('map',{zoomControl:false,worldCopyJump:true}).setView([50,31],4);L.control.zoom({position:'topright'}).addTo(map);
+const map=L.map('map',{zoomControl:false,worldCopyJump:true}).setView([50,31],4);
+L.control.zoom({position:'topright'}).addTo(map);
 const tl=(u,o)=>L.tileLayer(u,Object.assign({maxZoom:19},o));
 const bases={
- 'Супутник':L.layerGroup([tl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri'}),tl('https://mt{s}.google.com/vt/lyrs=h&hl=uk&x={x}&y={y}&z={z}',{subdomains:'0123',attribution:'© Google'})]),
- 'Карта':tl('https://mt{s}.google.com/vt/lyrs=m&hl=uk&x={x}&y={y}&z={z}',{subdomains:'0123',attribution:'© Google'}),
- 'Темна':tl('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OSM, CARTO'}),
- 'Рельєф':tl('https://tile.opentopomap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenTopoMap'})};
-let bcur=null;function setBase(n){if(bcur)map.removeLayer(bcur);bcur=bases[n];bcur.addTo(map);bcur.eachLayer?0:0;
- document.querySelectorAll('#bm button').forEach(b=>b.classList.toggle('on',b.textContent===n));try{localStorage.setItem(KEY+'_b',n)}catch(e){}}
+  'Супутник':L.layerGroup([
+    tl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri'}),
+    tl('https://mt{s}.google.com/vt/lyrs=h&hl=uk&x={x}&y={y}&z={z}',{subdomains:'0123',attribution:'© Google'})
+  ]),
+  'Карта':tl('https://mt{s}.google.com/vt/lyrs=m&hl=uk&x={x}&y={y}&z={z}',{subdomains:'0123',attribution:'© Google'}),
+  'Темна':tl('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OSM, CARTO'}),
+  'Рельєф':tl('https://tile.opentopomap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenTopoMap'})
+};
+let bcur=null;
+function setBase(n){
+  if(bcur)map.removeLayer(bcur);
+  bcur=bases[n];bcur.addTo(map);
+  document.querySelectorAll('#bm button').forEach(b=>b.classList.toggle('on',b.textContent===n));
+  try{localStorage.setItem(KEY+'_b',n)}catch(e){}
+}
 Object.keys(bases).forEach(n=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>setBase(n);$('#bm').appendChild(b)});
-let sb='Супутник';try{sb=localStorage.getItem(KEY+'_b')||sb}catch(e){}setBase(bases[sb]?sb:'Супутник');
+let sb='Супутник';try{sb=localStorage.getItem(KEY+'_b')||sb}catch(e){}
+setBase(bases[sb]?sb:'Супутник');
 
-/* features */
-function mk(f){const p=f.gj.properties,c=p.color||'#e53935',g=f.gj.geometry;let l;
- if(g.type==='Point'){const ll=rv(g.coordinates);
-  l=p.radius?L.circle(ll,{radius:p.radius,color:c,fillColor:c,fillOpacity:.2,weight:2}):L.marker(ll,{icon:L.divIcon({className:'',html:'<div class="pin" style="background:'+c+'"></div>',iconSize:[16,16],iconAnchor:[8,8]})})}
- else if(g.type==='LineString')l=L.polyline(g.coordinates.map(rv),{color:c,weight:3});
- else l=L.polygon(g.coordinates.map(r=>r.map(rv)),{color:c,weight:2,fillColor:c,fillOpacity:.3});
- l._g=f.layer;l._id=f.id;l.bindPopup(()=>pop(f));
- (groups[f.layer]||(groups[f.layer]=L.featureGroup())).addLayer(l);objs[f.id]=l}
-function pop(f){const p=f.gj.properties;return '<div class="pp"><b>'+esc(p.name||'Без назви')+'</b>'+(p.desc?'<div>'+esc(p.desc)+'</div>':'')+
- (admin?'<div class="a"><button onclick="ed(\''+f.id+'\')">Змінити</button><button onclick="sh(\''+f.id+'\')">Форма</button><button onclick="dl(\''+f.id+'\')">Видалити</button></div>':'')+'</div>'}
-function build(){Object.values(groups).forEach(g=>map.removeLayer(g));groups={};objs={};
- state.layers.forEach(l=>groups[l.id]=L.featureGroup());state.feats.forEach(mk);
- state.layers.forEach(l=>{if(l.visible)groups[l.id].addTo(map)});panel()}
-function refeat(f){const o=objs[f.id];if(o){groups[o._g].removeLayer(o)}mk(f);if(groups[f.layer]&&!map.hasLayer(groups[f.layer])&&state.layers.find(l=>l.id===f.layer).visible)groups[f.layer].addTo(map)}
+function mk(f){
+  const p=f.gj.properties,c=p.color||'#e53935',g=f.gj.geometry;let l;
+  if(g.type==='Point'){
+    const ll=rv(g.coordinates);
+    l=p.radius?L.circle(ll,{radius:p.radius,color:c,fillColor:c,fillOpacity:.2,weight:2})
+      :L.marker(ll,{icon:L.divIcon({className:'',html:'<div class="pin" style="background:'+c+'"></div>',iconSize:[16,16],iconAnchor:[8,8]})})
+  }
+  else if(g.type==='LineString')l=L.polyline(g.coordinates.map(rv),{color:c,weight:3});
+  else l=L.polygon(g.coordinates.map(r=>r.map(rv)),{color:c,weight:2,fillColor:c,fillOpacity:.3});
+  l._g=f.layer;l._id=f.id;l.bindPopup(()=>pop(f));
+  (groups[f.layer]||(groups[f.layer]=L.featureGroup())).addLayer(l);objs[f.id]=l
+}
+function pop(f){
+  const p=f.gj.properties;
+  return '<div class="pp"><b>'+esc(p.name||'Без назви')+'</b>'+(p.desc?'<div>'+esc(p.desc)+'</div>':'')+
+  (admin?'<div class="a"><button onclick="ed(\''+f.id+'\')">Змінити</button><button onclick="sh(\''+f.id+'\')">Форма</button><button onclick="dl(\''+f.id+'\')">Видалити</button></div>':'')+'</div>'
+}
+function build(){
+  Object.values(groups).forEach(g=>map.removeLayer(g));groups={};objs={};
+  state.layers.forEach(l=>groups[l.id]=L.featureGroup());state.feats.forEach(mk);
+  state.layers.forEach(l=>{if(l.visible)groups[l.id].addTo(map)});panel()
+}
+function refeat(f){
+  const o=objs[f.id];if(o){groups[o._g].removeLayer(o)}mk(f);
+  if(groups[f.layer]&&!map.hasLayer(groups[f.layer])&&state.layers.find(l=>l.id===f.layer).visible)groups[f.layer].addTo(map)
+}
 const byId=id=>state.feats.find(f=>f.id===id);
 window.ed=id=>{map.closePopup();openEdit(id)};
 window.dl=id=>{if(!admin||!confirm('Видалити цей об’єкт?'))return;map.closePopup();const o=objs[id];if(o)groups[o._g].removeLayer(o);delete objs[id];state.feats=state.feats.filter(f=>f.id!==id);save();panel()};
 window.sh=id=>{map.closePopup();const l=objs[id];if(!l||!l.editing)return;stopDraw();shapeEd=id;l.editing.enable();$('#done').style.display='block'};
-$('#done').onclick=()=>{const l=objs[shapeEd],f=byId(shapeEd);if(l&&f){l.editing.disable();const j=l.toGeoJSON();f.gj.geometry=j.geometry;if(l.getRadius)f.gj.properties.radius=l.getRadius();save()}shapeEd=null;$('#done').style.display='none'};
-function openEdit(id){const f=byId(id),p=f.gj.properties;
- modal('<h3>Об’єкт</h3><label>Назва<input id="m1" value="'+esc(p.name)+'"></label><label>Опис<textarea id="m2">'+esc(p.desc)+'</textarea></label><label>Колір<br><input type="color" id="m3" value="'+(p.color||'#e53935')+'"></label><label>Шар<select id="m4">'+state.layers.map(l=>'<option value="'+l.id+'"'+(l.id===f.layer?' selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><div class="btns"><button id="mc">Скасувати</button><button id="ms" class="pri">Зберегти</button></div>');
- $('#mc').onclick=closeM;$('#ms').onclick=()=>{p.name=$('#m1').value;p.desc=$('#m2').value;p.color=$('#m3').value;f.layer=$('#m4').value;save();refeat(f);panel();closeM()}}
+$('#done').onclick=()=>{
+  const l=objs[shapeEd],f=byId(shapeEd);
+  if(l&&f){l.editing.disable();const j=l.toGeoJSON();f.gj.geometry=j.geometry;if(l.getRadius)f.gj.properties.radius=l.getRadius();save()}
+  shapeEd=null;$('#done').style.display='none'
+};
+function openEdit(id){
+  const f=byId(id),p=f.gj.properties;
+  modal('<h3>Налаштування об’єкта</h3><label>Назва<input id="m1" value="'+esc(p.name)+'"></label><label>Опис<textarea id="m2">'+esc(p.desc)+'</textarea></label><label>Колір<br><input type="color" id="m3" value="'+(p.color||'#e53935')+'"></label><label>Шар<select id="m4">'+state.layers.map(l=>'<option value="'+l.id+'"'+(l.id===f.layer?' selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><div class="btns"><button id="mc">Скасувати</button><button id="ms" class="pri">Зберегти</button></div>');
+  $('#mc').onclick=closeM;$('#ms').onclick=()=>{p.name=$('#m1').value;p.desc=$('#m2').value;p.color=$('#m3').value;f.layer=$('#m4').value;save();refeat(f);panel();closeM()}
+}
 
-/* layers panel */
-function panel(){const el=$('#ls');el.innerHTML='';
- state.layers.forEach(ly=>{const n=state.feats.filter(f=>f.layer===ly.id).length,d=document.createElement('div');
-  d.className='row'+(admin&&active===ly.id?' act':'');
-  d.innerHTML='<input type="checkbox"'+(ly.visible?' checked':'')+'><span class="nm" title="'+esc(ly.name)+'">'+esc(ly.name)+'</span><small>'+n+'</small>'+(admin?'<button data-a="r" title="Перейменувати">✎</button><button data-a="x" title="Видалити шар">×</button>':'');
-  d.querySelector('input').onchange=e=>{ly.visible=e.target.checked;save();ly.visible?groups[ly.id].addTo(map):map.removeLayer(groups[ly.id])};
-  d.querySelector('.nm').onclick=()=>{if(admin){active=ly.id;panel()}};
-  const r=d.querySelector('[data-a=r]'),x=d.querySelector('[data-a=x]');
-  if(r)r.onclick=()=>{const v=prompt('Назва шару',ly.name);if(v){ly.name=v;save();panel()}};
-  if(x)x.onclick=()=>{if(!confirm('Видалити шар «'+ly.name+'» разом з усіма об’єктами?'))return;state.feats=state.feats.filter(f=>f.layer!==ly.id);state.layers=state.layers.filter(l=>l!==ly);if(active===ly.id)active=state.layers[0]&&state.layers[0].id;save();build()};
-  el.appendChild(d)});
- if(!state.layers.length)el.innerHTML='<div class="row"><small>Шарів немає</small></div>'}
+function panel(){
+  const el=$('#ls');el.innerHTML='';
+  state.layers.forEach(ly=>{
+    const n=state.feats.filter(f=>f.layer===ly.id).length,d=document.createElement('div');
+    d.className='row'+(admin&&active===ly.id?' act':'');
+    d.innerHTML='<input type="checkbox"'+(ly.visible?' checked':'')+'><span class="nm" title="'+esc(ly.name)+'">'+esc(ly.name)+'</span><small>'+n+'</small>'+(admin?'<button data-a="r" title="Перейменувати">✎</button><button data-a="x" title="Видалити шар">×</button>':'');
+    d.querySelector('input').onchange=e=>{ly.visible=e.target.checked;save();ly.visible?groups[ly.id].addTo(map):map.removeLayer(groups[ly.id])};
+    d.querySelector('.nm').onclick=()=>{if(admin){active=ly.id;panel()}};
+    const r=d.querySelector('[data-a=r]'),x=d.querySelector('[data-a=x]');
+    if(r)r.onclick=()=>{const v=prompt('Назва шару',ly.name);if(v){ly.name=v;save();panel()}};
+    if(x)x.onclick=()=>{if(!confirm('Видалити шар «'+ly.name+'» разом з усіма об’єктами?'))return;state.feats=state.feats.filter(f=>f.layer!==ly.id);state.layers=state.layers.filter(l=>l!==ly);if(active===ly.id)active=state.layers[0]&&state.layers[0].id;save();build()};
+    el.appendChild(d)
+  });
+  if(!state.layers.length)el.innerHTML='<div class="row"><small>Шарів немає</small></div>'
+}
 $('#addl').onclick=()=>{const v=prompt('Назва нового шару');if(!v)return;const l={id:uid(),name:v,visible:true};state.layers.push(l);active=l.id;save();build()};
 $('#tg').onclick=()=>{const s=$('#side');s.classList.toggle('c');$('#tg').textContent=s.classList.contains('c')?'+':'–'};
 
-/* search */
-$('#srch').onkeydown=async e=>{if(e.key!=='Enter')return;const q=e.target.value.trim();if(!q)return;
- try{const r=await (await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q))).json();
-  if(r[0]){const b=r[0].boundingbox;map.fitBounds([[+b[0],+b[2]],[+b[1],+b[3]]],{maxZoom:14})}else toast('Нічого не знайдено')}catch(x){toast('Пошук недоступний')}};
+$('#srch').onkeydown=async e=>{
+  if(e.key!=='Enter')return;const q=e.target.value.trim();if(!q)return;
+  try{
+    const r=await (await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q))).json();
+    if(r[0]){const b=r[0].boundingbox;map.fitBounds([[+b[0],+b[2]],[+b[1],+b[3]]],{maxZoom:14})}else toast('Нічого не знайдено')
+  }catch(x){toast('Пошук недоступний')}
+};
 
-/* drawing (admin) */
 function stopDraw(){if(cur){cur.disable();cur=null}}
 document.querySelectorAll('#tb button').forEach(b=>b.onclick=()=>{
- if(!admin)return;if(!active||!state.layers.find(l=>l.id===active))return toast('Спершу оберіть шар у панелі зліва');
- stopDraw();const t=b.dataset.t,o={shapeOptions:{color:'#e53935'}};
- cur=t==='marker'?new L.Draw.Marker(map,{icon:L.divIcon({className:'',html:'<div class="pin" style="background:#e53935"></div>',iconSize:[16,16],iconAnchor:[8,8]})}):
- t==='polyline'?new L.Draw.Polyline(map,o):t==='polygon'?new L.Draw.Polygon(map,o):t==='rectangle'?new L.Draw.Rectangle(map,o):new L.Draw.Circle(map,o);cur.enable()});
-map.on(L.Draw.Event.CREATED,e=>{cur=null;const l=e.layer,j=l.toGeoJSON(),f={id:uid(),layer:active,gj:{type:'Feature',properties:{name:'',desc:'',color:'#e53935'},geometry:j.geometry}};
- if(l instanceof L.Circle)f.gj.properties.radius=l.getRadius();
- state.feats.push(f);save();mk(f);if(!map.hasLayer(groups[active]))groups[active].addTo(map);panel();openEdit(f.id)});
+  if(!admin)return;if(!active||!state.layers.find(l=>l.id===active))return toast('Спершу оберіть шар у панелі зліва');
+  stopDraw();const t=b.dataset.t,o={shapeOptions:{color:'#e53935'}};
+  cur=t==='marker'?new L.Draw.Marker(map,{icon:L.divIcon({className:'',html:'<div class="pin" style="background:#e53935"></div>',iconSize:[16,16],iconAnchor:[8,8]})}):
+  t==='polyline'?new L.Draw.Polyline(map,o):t==='polygon'?new L.Draw.Polygon(map,o):t==='rectangle'?new L.Draw.Rectangle(map,o):new L.Draw.Circle(map,o);cur.enable()
+});
+map.on(L.Draw.Event.CREATED,e=>{
+  cur=null;const l=e.layer,j=l.toGeoJSON(),f={id:uid(),layer:active,gj:{type:'Feature',properties:{name:'',desc:'',color:'#e53935'},geometry:j.geometry}};
+  if(l instanceof L.Circle)f.gj.properties.radius=l.getRadius();
+  state.feats.push(f);save();mk(f);if(!map.hasLayer(groups[active]))groups[active].addTo(map);panel();openEdit(f.id)
+});
 
-/* import / export */
 const kc=s=>{s=(s||'').trim();return s.length>=8?'#'+s.slice(6,8)+s.slice(4,6)+s.slice(2,4):null};
-function parseKML(txt,fname){const d=new DOMParser().parseFromString(txt,'text/xml'),st={};
- d.querySelectorAll('Style[id]').forEach(s=>{const g=t=>{const e=s.querySelector(t+' > color');return e&&kc(e.textContent)};st[s.id]=g('LineStyle')||g('PolyStyle')||g('IconStyle')});
- d.querySelectorAll('StyleMap[id]').forEach(m=>m.querySelectorAll('Pair').forEach(p=>{const k=p.querySelector('key');if(k&&k.textContent==='normal'){const u=p.querySelector('styleUrl');if(u)st[m.id]=st[u.textContent.replace('#','')]}}));
- const co=t=>(t?t.textContent:'').trim().split(/\s+/).map(s=>s.split(',').map(Number)).filter(a=>a.length>=2&&!isNaN(a[0])&&!isNaN(a[1])).map(a=>[a[0],a[1]]);
- const lm={},add=n=>lm[n]||(lm[n]=(()=>{const l={id:uid(),name:n,visible:true};state.layers.push(l);return l})());let cnt=0;
- d.querySelectorAll('Placemark').forEach(pm=>{let fo=pm.parentElement;while(fo&&fo.tagName!=='Folder')fo=fo.parentElement;
-  let ln=fname;if(fo){const n=Array.from(fo.children).find(c=>c.tagName==='name');if(n)ln=n.textContent.trim()||ln}
-  const ly=add(ln),ne=Array.from(pm.children).find(c=>c.tagName==='name'),de=Array.from(pm.children).find(c=>c.tagName==='description'),su=Array.from(pm.children).find(c=>c.tagName==='styleUrl');
-  const desc=de?new DOMParser().parseFromString(de.textContent.replace(/<br\s*\/?>/gi,'\n'),'text/html').body.textContent.trim():'';
-  const color=(su&&st[su.textContent.replace('#','')])||'#e53935';
-  pm.querySelectorAll('Point,LineString,Polygon').forEach(g=>{let geo;
-   if(g.tagName==='Point'){const c=co(g.querySelector('coordinates'));if(c[0])geo={type:'Point',coordinates:c[0]}}
-   else if(g.tagName==='LineString'){const c=co(g.querySelector('coordinates'));if(c.length>1)geo={type:'LineString',coordinates:c}}
-   else{const rings=[],o=g.querySelector('outerBoundaryIs coordinates');if(o)rings.push(co(o));g.querySelectorAll('innerBoundaryIs coordinates').forEach(i=>rings.push(co(i)));if(rings[0]&&rings[0].length>2)geo={type:'Polygon',coordinates:rings}}
-   if(geo){state.feats.push({id:uid(),layer:ly.id,gj:{type:'Feature',properties:{name:ne?ne.textContent.trim():'',desc,color},geometry:geo}});cnt++}})});
- return cnt}
-function parseJSON(txt,fname){const j=JSON.parse(txt);
- if(j.layers&&j.feats){j.layers.forEach(l=>{if(!state.layers.find(x=>x.id===l.id))state.layers.push(l)});j.feats.forEach(f=>{if(!state.feats.find(x=>x.id===f.id))state.feats.push(f)});return j.feats.length}
- const fs=j.type==='FeatureCollection'?j.features:[j],ly={id:uid(),name:fname,visible:true};state.layers.push(ly);let n=0;
- fs.forEach(f=>{const g=f.geometry;if(g&&['Point','LineString','Polygon'].includes(g.type)){const p=f.properties||{};state.feats.push({id:uid(),layer:ly.id,gj:{type:'Feature',properties:{name:p.name||p.title||'',desc:p.description||p.desc||'',color:'#e53935'},geometry:g}});n++}});return n}
+function parseKML(txt,fname){
+  const d=new DOMParser().parseFromString(txt,'text/xml'),st={};
+  d.querySelectorAll('Style[id]').forEach(s=>{const g=t=>{const e=s.querySelector(t+' > color');return e&&kc(e.textContent)};st[s.id]=g('LineStyle')||g('PolyStyle')||g('IconStyle')});
+  d.querySelectorAll('StyleMap[id]').forEach(m=>m.querySelectorAll('Pair').forEach(p=>{const k=p.querySelector('key');if(k&&k.textContent==='normal'){const u=p.querySelector('styleUrl');if(u)st[m.id]=st[u.textContent.replace('#','')]}}));
+  const co=t=>(t?t.textContent:'').trim().split(/\s+/).map(s=>s.split(',').map(Number)).filter(a=>a.length>=2&&!isNaN(a[0])&&!isNaN(a[1])).map(a=>[a[0],a[1]]);
+  const lm={},add=n=>lm[n]||(lm[n]=(()=>{const l={id:uid(),name:n,visible:true};state.layers.push(l);return l})());let cnt=0;
+  d.querySelectorAll('Placemark').forEach(pm=>{
+    let fo=pm.parentElement;while(fo&&fo.tagName!=='Folder')fo=fo.parentElement;
+    let ln=fname;if(fo){const n=Array.from(fo.children).find(c=>c.tagName==='name');if(n)ln=n.textContent.trim()||ln}
+    const ly=add(ln),ne=Array.from(pm.children).find(c=>c.tagName==='name'),de=Array.from(pm.children).find(c=>c.tagName==='description'),su=Array.from(pm.children).find(c=>c.tagName==='styleUrl');
+    const desc=de?new DOMParser().parseFromString(de.textContent.replace(/<br\s*\/?>/gi,'\n'),'text/html').body.textContent.trim():'';
+    const color=(su&&st[su.textContent.replace('#','')])||'#e53935';
+    pm.querySelectorAll('Point,LineString,Polygon').forEach(g=>{
+      let geo;
+      if(g.tagName==='Point'){const c=co(g.querySelector('coordinates'));if(c[0])geo={type:'Point',coordinates:c[0]}}
+      else if(g.tagName==='LineString'){const c=co(g.querySelector('coordinates'));if(c.length>1)geo={type:'LineString',coordinates:c}}
+      else{const rings=[],o=g.querySelector('outerBoundaryIs coordinates');if(o)rings.push(co(o));g.querySelectorAll('innerBoundaryIs coordinates').forEach(i=>rings.push(co(i)));if(rings[0]&&rings[0].length>2)geo={type:'Polygon',coordinates:rings}}
+      if(geo){state.feats.push({id:uid(),layer:ly.id,gj:{type:'Feature',properties:{name:ne?ne.textContent.trim():'',desc,color},geometry:geo}});cnt++}
+    })
+  });
+  return cnt
+}
+function parseJSON(txt,fname){
+  const j=JSON.parse(txt);
+  if(j.layers&&j.feats){j.layers.forEach(l=>{if(!state.layers.find(x=>x.id===l.id))state.layers.push(l)});j.feats.forEach(f=>{if(!state.feats.find(x=>x.id===f.id))state.feats.push(f)});return j.feats.length}
+  const fs=j.type==='FeatureCollection'?j.features:[j],ly={id:uid(),name:fname,visible:true};state.layers.push(ly);let n=0;
+  fs.forEach(f=>{const g=f.geometry;if(g&&['Point','LineString','Polygon'].includes(g.type)){const p=f.properties||{};state.feats.push({id:uid(),layer:ly.id,gj:{type:'Feature',properties:{name:p.name||p.title||'',desc:p.description||p.desc||'',color:'#e53935'},geometry:g}});n++}});return n
+}
 $('#imp').onclick=()=>$('#fi').click();
-$('#fi').onchange=async e=>{let tot=0;
- for(const f of e.target.files){const nm=f.name.replace(/\.[^.]+$/,'');try{
-  if(/\.kmz$/i.test(f.name)){const z=await JSZip.loadAsync(await f.arrayBuffer()),k=Object.keys(z.files).find(n=>/\.kml$/i.test(n));tot+=parseKML(await z.files[k].async('string'),nm)}
-  else if(/\.kml$/i.test(f.name))tot+=parseKML(await f.text(),nm);else tot+=parseJSON(await f.text(),nm)}catch(x){toast('Помилка імпорту: '+f.name)}}
- e.target.value='';save();build();if(tot)toast('Імпортовано об’єктів: '+tot)};
+$('#fi').onchange=async e=>{
+  let tot=0;
+  for(const f of e.target.files){
+    const nm=f.name.replace(/\.[^.]+$/,'');
+    try{
+      if(/\.kmz$/i.test(f.name)){const z=await JSZip.loadAsync(await f.arrayBuffer()),k=Object.keys(z.files).find(n=>/\.kml$/i.test(n));tot+=parseKML(await z.files[k].async('string'),nm)}
+      else if(/\.kml$/i.test(f.name))tot+=parseKML(await f.text(),nm);else tot+=parseJSON(await f.text(),nm)
+    }catch(x){toast('Помилка імпорту: '+f.name)}
+  }
+  e.target.value='';save();build();if(tot)toast('Імпортовано об’єктів: '+tot)
+};
 $('#exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state)],{type:'application/json'}));a.download='ukraine-map.json';a.click()};
 
-/* admin */
-function setAdmin(v){admin=v;document.body.classList.toggle('adm',v);$('#adm').textContent=v?'Вийти з режиму адміна':'Зайти як адмін';
- ['#ladd','#io','#iosub'].forEach(s=>$(s).style.display=v?'block':'none');
- if(v&&!active)active=state.layers[0]&&state.layers[0].id;if(!v){stopDraw();if(shapeEd)$('#done').onclick()}map.closePopup();panel()}
-$('#adm').onclick=()=>{if(admin)return setAdmin(false);
- modal('<h3>Вхід для адміністратора</h3><label>Код доступу<input id="pw" type="password" autocomplete="off"></label><div id="er" style="color:#e53935;font-size:12px;min-height:16px"></div><div class="btns"><button id="mc">Скасувати</button><button id="ms" class="pri">Увійти</button></div>');
- const go=()=>{if($('#pw').value.trim().toLowerCase()===CODE){closeM();setAdmin(true)}else $('#er').textContent='Невірний код'};
- $('#mc').onclick=closeM;$('#ms').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()};$('#pw').focus()};
+function setAdmin(v){
+  admin=v;document.body.classList.toggle('adm',v);$('#adm').textContent=v?'Вийти з режиму адміна':'Зайти як адмін';
+  ['#ladd','#io','#iosub'].forEach(s=>$(s).style.display=v?'block':'none');
+  if(v&&!active)active=state.layers[0]&&state.layers[0].id;if(!v){stopDraw();if(shapeEd)$('#done').onclick()}map.closePopup();panel()
+}
+$('#adm').onclick=()=>{
+  if(admin)return setAdmin(false);
+  modal('<h3>Вхід для адміністратора</h3><label>Код доступу<input id="pw" type="password" autocomplete="off"></label><div id="er" style="color:#ef4444;font-size:12px;min-height:16px"></div><div class="btns"><button id="mc">Скасувати</button><button id="ms" class="pri">Увійти</button></div>');
+  const go=()=>{if($('#pw').value.trim().toLowerCase()===CODE){closeM();setAdmin(true)}else $('#er').textContent='Невірний код'};
+  $('#mc').onclick=closeM;$('#ms').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()};$('#pw').focus()
+};
+
 build();
-setTimeout(()=>map.flyTo([48.7,31.3],6,{duration:2.6}),900);
-setTimeout(()=>$('#intro').classList.add('out'),1900);
-setTimeout(()=>{const i=$('#intro');if(i)i.remove()},3000);
-</script></body></html>
+setTimeout(()=>map.flyTo([48.7,31.3],6,{duration:2.6}),1100);
+setTimeout(()=>$('#intro').classList.add('out'),2200);
+setTimeout(()=>{const i=$('#intro');if(i)i.remove()},3200);
+</script>
+</body>
+</html>
